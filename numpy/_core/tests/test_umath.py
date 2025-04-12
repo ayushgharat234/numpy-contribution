@@ -4897,3 +4897,34 @@ class TestAdd_newdoc_ufunc:
     @pytest.mark.filterwarnings("ignore:_add_newdoc_ufunc:DeprecationWarning")
     def test_string_arg(self):
         assert_raises(TypeError, ncu._add_newdoc_ufunc, np.add, 3)
+
+
+class TestUfuncBufferHandling:
+    """
+    Tests for verifying ufunc buffer size behavior using `np.setbufsize()` and
+    `np.getbufsize()`, especially when used inside `np.errstate()` context blocks.
+
+    This class was added by Ayush Gharat as part of type annotation and internal
+    behavior validation for NumPy's ufunc error-handling mechanisms (April 2025).
+
+    Reference: See discussion and docstring in `numpy.core._ufunc_config.setbufsize`.
+    """
+
+    def test_setbufsize_context_restores(self):
+        """
+        Ensure that setting the ufunc buffer size inside a `with np.errstate():`
+        block is temporary and reverts to the original value after the context ends.
+        """
+        import numpy as np
+
+        original_bufsize = np.getbufsize()
+        assert isinstance(original_bufsize, int), "Expected an integer buffer size"
+
+        with np.errstate():
+            np.setbufsize(4096)
+            assert np.getbufsize() == 4096, "Buffer size not updated inside context"
+
+        restored_bufsize = np.getbufsize()
+        assert restored_bufsize == original_bufsize, (
+            f"Expected buffer size to revert to {original_bufsize}, but got {restored_bufsize}"
+        )

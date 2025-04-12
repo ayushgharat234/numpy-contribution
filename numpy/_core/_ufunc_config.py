@@ -1,3 +1,6 @@
+# NOTE: Public API types for this module are defined in `numpy/core/_ufunc_config.pyi`.
+# Do not add inline type annotations here unless explicitly allowed.
+
 """
 Functions for changing global ufunc configuration
 
@@ -113,7 +116,7 @@ def geterr():
 
     Returns
     -------
-    res : dict
+    res : dict[str, {'ignore', 'warn', 'raise', 'call', 'print', 'log'}]
         A dictionary with keys "divide", "over", "under", and "invalid",
         whose values are from the strings "ignore", "print", "log", "warn",
         "raise", and "call". The keys represent possible floating-point
@@ -148,7 +151,7 @@ def geterr():
 
     """
     res = _get_extobj_dict()
-    # The "geterr" doesn't include call and bufsize,:
+    # The result of `geterr` doesn't include "call" and "bufsize":
     res.pop("call", None)
     res.pop("bufsize", None)
     return res
@@ -352,12 +355,11 @@ def geterrcall():
     """
     return _get_extobj_dict()["call"]
 
-
-class _unspecified:
+class _UnspecifiedType:
+    """Sentinel value for distinguishing unspecified arguments from None."""
     pass
 
-
-_Unspecified = _unspecified()
+_Unspecified = _UnspecifiedType()
 
 
 @set_module('numpy')
